@@ -9,6 +9,8 @@ Plain HTML, CSS and JavaScript: no framework, no build step, no chart library (c
 
 ## What's in the dashboard
 
+# https://logicversehub.github.io/doctor-clinic/
+
 - Filters for period, department, city, gender and visit type that apply to every card
 - Patient satisfaction (average rating and star distribution), plus KPIs for revenue, visits, follow-up rate
   and average waiting time, each with a monthly sparkline and change vs. the prior 3 months
