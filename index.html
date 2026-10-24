@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en-IN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hospital Patient Visits Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M9 4v10M4 9h10"/></svg>
+      </div>
+      <div><b id="brand-name">Hospital</b><span>Patient Visits</span></div>
+    </div>
+    <nav class="nav" aria-label="Dashboard sections">
+      <div class="nav-label">Dashboard</div>
+      <a href="#summary" class="on"><svg viewBox="0 0 18 18"><rect x="2.5" y="2.5" width="5.5" height="5.5" rx="1.3"/><rect x="10" y="2.5" width="5.5" height="5.5" rx="1.3"/><rect x="2.5" y="10" width="5.5" height="5.5" rx="1.3"/><rect x="10" y="10" width="5.5" height="5.5" rx="1.3"/></svg>Summary</a>
+      <a href="#trend"><svg viewBox="0 0 18 18"><path d="M2.5 13l4-4.5 3 2.5 6-7"/><path d="M11.5 4h4v4"/></svg>Trend &amp; patients</a>
+      <a href="#depts"><svg viewBox="0 0 18 18"><path d="M3 4.5h12M3 9h8M3 13.5h10"/></svg>Departments &amp; insights</a>
+      <a href="#issues"><svg viewBox="0 0 18 18"><path d="M9 2.5v13M2.5 9h13"/></svg>Issues &amp; payments</a>
+      <a href="#feedback"><svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="6.5"/><path d="M9 5.5V9l2.5 1.5"/></svg>Feedback &amp; waiting</a>
+      <a href="#segments"><svg viewBox="0 0 18 18"><path d="M9 2.5l6.5 3.5L9 9.5 2.5 6 9 2.5z"/><path d="M2.5 9.5L9 13l6.5-3.5"/></svg>Segment performance</a>
+      <a href="#visits"><svg viewBox="0 0 18 18"><rect x="3" y="2.5" width="12" height="13" rx="1.7"/><path d="M6 6h6M6 9h6M6 12h3.5"/></svg>Visit records</a>
+    </nav>
+    <div class="side-foot">
+      <b>Data source</b>
+      <dl>
+        <dt>File</dt><dd id="ds-f"></dd>
+        <dt>Visits</dt><dd id="ds-n"></dd>
+        <dt>Patients</dt><dd id="ds-p"></dd>
+        <dt>Doctors</dt><dd id="ds-d"></dd>
+        <dt>Branches</dt><dd id="ds-c"></dd>
+        <dt>Period</dt><dd id="ds-t"></dd>
+      </dl>
+    </div>
+  </aside>
+
+  <main>
+    <header class="top">
+      <div>
+        <div class="crumb" id="crumb">Dashboard</div>
+        <h1 id="title">Patient Visits</h1>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="btn-load" type="button"><svg viewBox="0 0 16 16"><path d="M8 10.5V2.500M5 5.500l3-3 3 3"/><path d="M2.500 10v2a1.500 1.500 0 001.500 1.500h8A1.500 1.500 0 0013.500 12v-2"/></svg>Load CSV</button>
+        <input type="file" id="file-in" accept=".csv,text/csv" hidden>
+        <button class="btn" id="btn-theme" type="button" aria-label="Toggle light/dark theme"><svg viewBox="0 0 16 16"><path d="M13.5 9.2A5.6 5.6 0 016.8 2.5a5.6 5.6 0 106.7 6.7z"/></svg><span>Dark</span></button>
+        <button class="btn" id="btn-print" type="button"><svg viewBox="0 0 16 16"><path d="M4.5 6V2.5h7V6M4.500 11.500h-1A1.500 1.500 0 012 10V7.500A1.500 1.500 0 013.500 6h9A1.500 1.500 0 0114 7.500V10a1.500 1.500 0 01-1.500 1.500h-1"/><path d="M4.500 9.500h7v4h-7z"/></svg>Print / PDF</button>
+      </div>
+    </header>
+
+    <div class="notice" id="notice" hidden></div>
+
+    <div id="dash" hidden>
+    <section class="filters" aria-label="Filters">
+      <div class="field"><label for="f-period">Period</label><select id="f-period"></select></div>
+      <div class="field"><label for="f-dept">Department</label><select id="f-dept"></select></div>
+      <div class="field"><label for="f-city">City</label><select id="f-city"></select></div>
+      <div class="field"><label for="f-gender">Gender</label><select id="f-gender"></select></div>
+      <div class="field"><label for="f-vtype">Visit type</label><select id="f-vtype"></select></div>
+      <button class="link" id="f-reset" type="button" hidden>Reset filters</button>
+      <div class="scope" id="scope"></div>
+    </section>
+
+    <section class="grid" id="summary">
+      <div class="card hero c4">
+        <div class="lbl">Patient satisfaction</div>
+        <div class="big"><b id="h-rating"></b><span>/ 5</span></div>
+        <div class="meta" id="h-meta"></div>
+        <div class="hero-stats" id="h-stats"></div>
+        <div class="dist" id="h-dist"></div>
+      </div>
+      <div class="kpis c8" id="kpis"></div>
+    </section>
+
+    <section class="grid" id="trend">
+      <div class="card c8">
+        <div class="card-head">
+          <div><h3>Monthly trend</h3><p id="trend-sub"></p></div>
+          <div class="seg" id="metric-seg" role="group" aria-label="Trend metric"></div>
+        </div>
+        <div class="trend-head"><b id="trend-big"></b><span id="trend-note"></span></div>
+        <div class="chart" id="trendChart"></div>
+      </div>
+      <div class="card c4">
+        <div class="card-head"><div><h3>Feedback sentiment</h3><p id="sent-sub"></p></div></div>
+        <div class="donut-wrap">
+          <svg class="donut" id="donut" viewBox="0 0 150 150" role="img" aria-label="Feedback sentiment mix"></svg>
+          <div class="rows" id="sent-legend"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="mini-title">Gender <span id="gender-n"></span></div>
+        <div class="stack" id="gender-bar"></div>
+        <div class="stack-legend" id="gender-legend"></div>
+        <div class="divider"></div>
+        <div class="mini-title">Age group <span id="age-n"></span></div>
+        <div class="stack" id="age-bar"></div>
+        <div class="stack-legend" id="age-legend"></div>
+        <div class="divider"></div>
+        <div class="mini-title">Visits per patient <span id="freq-n"></span></div>
+        <div class="stack" id="freq-bar"></div>
+        <div class="stack-legend" id="freq-legend"></div>
+      </div>
+    </section>
+
+    <section class="grid" id="depts">
+      <div class="card c7">
+        <div class="card-head">
+          <div><h3>Revenue, satisfaction, and follow-ups by department</h3><p>Sorted by highest revenue</p></div>
+        </div>
+        <div class="asp" id="dept"></div>
+      </div>
+      <div class="card c5">
+        <div class="card-head"><div><h3>Key insights</h3><p>Computed automatically from the data under the active filters</p></div></div>
+        <ol class="ins" id="ins"></ol>
+      </div>
+    </section>
+
+    <section class="grid" id="issues">
+      <div class="card c7">
+        <div class="card-head">
+          <div><h3>Top health issues</h3><p>Most frequent diagnoses / reasons for visit</p></div>
+        </div>
+        <div class="asp" id="issue"></div>
+      </div>
+      <div class="card c5">
+        <div class="card-head">
+          <div><h3>Payment mode</h3><p>Share of visits and revenue</p></div>
+        </div>
+        <div class="asp" id="pay"></div>
+        <p class="note" id="pay-note"></p>
+      </div>
+    </section>
+
+    <section class="grid" id="feedback">
+      <div class="card c7">
+        <div class="card-head">
+          <div><h3>What patients talk about</h3><p>Sorted by highest share of negative feedback</p></div>
+          <div class="legend"><span><i class="sw pos"></i>Positive</span><span><i class="sw neu"></i>Neutral</span><span><i class="sw neg"></i>Negative</span></div>
+        </div>
+        <div class="asp" id="asp"></div>
+        <p class="note">Topics are grouped automatically from keywords in the feedback text (e.g. “wait”, “bill”, “nurse”), not from a data column. Rules live in <code>TOPICS</code> in assets/app.js.</p>
+      </div>
+      <div class="card c5">
+        <div class="card-head">
+          <div><h3>Waiting time</h3><p>Minutes from registration to consultation</p></div>
+        </div>
+        <div class="twostat" id="wait-stats"></div>
+        <div class="legend" style="margin-bottom:4px"><span><i class="sw pos"></i>Under 30 min</span><span><i class="sw mid"></i>30–60 min</span><span><i class="sw neg"></i>60+ min</span></div>
+        <div class="chart" id="waitChart"></div>
+      </div>
+    </section>
+
+    <section class="grid" id="segments">
+      <div class="card c12">
+        <div class="card-head">
+          <div><h3>Performance by segment</h3><p>Click a column header to sort</p></div>
+          <div class="seg" id="dim-seg" role="group" aria-label="Dimension"></div>
+        </div>
+        <div class="table-scroll"><table id="dim-table"></table></div>
+        <p class="note" id="dim-note"></p>
+      </div>
+    </section>
+
+    <section class="grid" id="visits">
+      <div class="card c12">
+        <div class="card-head">
+          <div><h3>Visit records</h3><p id="rv-sub"></p></div>
+          <div class="tools">
+            <input class="search" id="rv-q" type="search" placeholder="Search patient, doctor, issue, feedback…" aria-label="Search visits">
+            <div class="seg" id="rv-seg" role="group" aria-label="Record filter"></div>
+          </div>
+        </div>
+        <div class="table-scroll"><table id="rv-table"></table></div>
+        <div class="pager"><span id="rv-info"></span><div><button id="rv-prev" type="button">Previous</button><button id="rv-next" type="button">Next</button></div></div>
+      </div>
+    </section>
+    </div>
+  </main>
+</div>
+<div id="tip" hidden></div>
+<div id="drop" hidden><div>Drop a CSV file to load it</div></div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
